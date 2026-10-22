@@ -2,7 +2,8 @@ const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
 
 // Nustatymai
-const tileSize = 30; // 19 stulpelių * 30 = 570 plotis
+const tileSize = 30; 
+// Labirintas (19 stulpelių x 18 eilučių)
 const map = [
     "1111111111111111111",
     "1222222222122222221",
@@ -32,7 +33,6 @@ let ghosts = [
     { x: 10, y: 8, dx: -1, dy: 0 }
 ];
 
-// Žaidimo būsena
 let gameLoopId;
 let isPaused = false;
 let quizTimeLeft = 10;
@@ -41,11 +41,15 @@ let currentQIndex = 0;
 
 // Įkeliame pliko vyro paveikslėlį
 const playerImg = new Image();
-playerImg.src = 'boss.png'; // Naudojame bosą kaip Pac-Man
+playerImg.src = 'boss.png'; 
+playerImg.onerror = () => {
+    console.warn("Nepavyko įkelti boss.png. Patikrinkite ar failas yra aplanke.");
+};
 
 function startGame() {
     document.getElementById('start-screen').classList.remove('active');
     document.getElementById('play-screen').classList.add('active');
+    updateHUD();
     gameLoopId = requestAnimationFrame(gameLoop);
 }
 
@@ -59,12 +63,13 @@ function gameLoop() {
 }
 
 function update() {
-    // Judėjimo logika (Pac-Man stilius)
+    // Judėjimo logika
     if (player.nextDx !== 0 || player.nextDy !== 0) {
         if (canMove(player.x + player.nextDx, player.y + player.nextDy)) {
             player.dx = player.nextDx;
             player.dy = player.nextDy;
-            player.nextDx = 0; player.nextDy = 0;
+            player.nextDx = 0; 
+            player.nextDy = 0;
         }
     }
 
@@ -73,19 +78,24 @@ function update() {
         player.y += player.dy;
         checkTile();
     } else {
-        player.dx = 0; player.dy = 0;
+        player.dx = 0; 
+        player.dy = 0;
     }
 
-    // Vaiduoklių judėjimas (labai paprastas)
+    // Vaiduoklių judėjimas
     ghosts.forEach(g => {
         if (!canMove(g.x + g.dx, g.y + g.dy) || Math.random() < 0.05) {
-            // Keičia kryptį
             const dirs = [[1,0],[-1,0],[0,1],[0,-1]];
             const d = dirs[Math.floor(Math.random() * 4)];
-            if(canMove(g.x + d[0], g.y + d[1])) { g.dx = d[0]; g.dy = d[1]; }
+            if(canMove(g.x + d[0], g.y + d[1])) { 
+                g.dx = d[0]; 
+                g.dy = d[1]; 
+            }
         }
-        g.x += g.dx;
-        g.y += g.dy;
+        if (canMove(g.x + g.dx, g.y + g.dy)) {
+            g.x += g.dx;
+            g.y += g.dy;
+        }
 
         // Susidūrimas su žaidėju
         if (g.x === player.x && g.y === player.y) {
@@ -101,18 +111,18 @@ function canMove(x, y) {
 
 function checkTile() {
     let tile = map[player.y][player.x];
-    if (tile === '2') { // Paprastas taškas
+    if (tile === '2') { 
         score += 10;
         updateMap(player.x, player.y, '0');
         updateHUD();
-    } else if (tile === '3') { // Power pellet - IŠKVIEČIA VIKTORINĄ
+    } else if (tile === '3') { 
         score += 50;
         updateMap(player.x, player.y, '0');
         updateHUD();
         triggerQuiz();
     }
 
-    // Laimėjimo sąlyga (jei neliko taškų)
+    // Patikriname ar liko taškų
     if (!map.some(row => row.includes('2') || row.includes('3'))) {
         endGame(true);
     }
@@ -131,11 +141,10 @@ function updateHUD() {
 function draw() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-    // Piešiame labirintą
     for (let y = 0; y < map.length; y++) {
         for (let x = 0; x < map[y].length; x++) {
             if (map[y][x] === '1') {
-                ctx.fillStyle = '#0ff'; // Sienos
+                ctx.fillStyle = '#0ff'; 
                 ctx.fillRect(x * tileSize, y * tileSize, tileSize, tileSize);
             } else if (map[y][x] === '2') {
                 ctx.fillStyle = '#fff';
@@ -143,7 +152,7 @@ function draw() {
                 ctx.arc(x * tileSize + 15, y * tileSize + 15, 3, 0, Math.PI * 2);
                 ctx.fill();
             } else if (map[y][x] === '3') {
-                ctx.fillStyle = '#f0f'; // Power pellet
+                ctx.fillStyle = '#f0f'; 
                 ctx.beginPath();
                 ctx.arc(x * tileSize + 15, y * tileSize + 15, 8, 0, Math.PI * 2);
                 ctx.fill();
@@ -151,15 +160,15 @@ function draw() {
         }
     }
 
-    // Piešiame žaidėją (Pliką vyrą)
-    if (playerImg.complete) {
+    // Piešiame žaidėją
+    if (playerImg.complete && playerImg.naturalWidth !== 0) {
         ctx.drawImage(playerImg, player.x * tileSize, player.y * tileSize, tileSize, tileSize);
     } else {
-        ctx.fillStyle = '#f0f'; // Kol neįsikėlė paveikslėlis
+        ctx.fillStyle = '#f0f'; 
         ctx.fillRect(player.x * tileSize, player.y * tileSize, tileSize, tileSize);
     }
 
-    // Piešiame vaiduoklius (galime naudoti kitus paveikslėlius, bet dabar raudoni kvadratai)
+    // Piešiame vaiduoklius
     ctx.fillStyle = 'red';
     ghosts.forEach(g => {
         ctx.fillRect(g.x * tileSize, g.y * tileSize, tileSize, tileSize);
@@ -168,10 +177,14 @@ function draw() {
 
 // --- VIKTORINOS INTEGRACIJA ---
 function triggerQuiz() {
+    if (typeof quizQuestions === 'undefined' || quizQuestions.length === 0) {
+        alert("Klaida: Nerastas questions.js failas arba jis tuščias!");
+        return;
+    }
+
     isPaused = true;
     document.getElementById('quiz-overlay').classList.add('active');
     
-    // Paimame klausimą
     const q = quizQuestions[currentQIndex % quizQuestions.length];
     document.getElementById('question-text').innerText = q.question;
     
@@ -186,7 +199,6 @@ function triggerQuiz() {
         optionsDiv.appendChild(btn);
     });
 
-    // Laikmatis
     quizTimeLeft = 10;
     document.getElementById('quiz-timer-display').innerText = `Laikas: ${quizTimeLeft}s`;
     
@@ -196,7 +208,7 @@ function triggerQuiz() {
         document.getElementById('quiz-timer-display').innerText = `Laikas: ${quizTimeLeft}s`;
         if (quizTimeLeft <= 0) {
             clearInterval(quizTimerId);
-            loseLife(); // Laikas baigėsi - prarandi gyvybę
+            loseLife(); 
             closeQuiz();
         }
     }, 1000);
@@ -205,13 +217,12 @@ function triggerQuiz() {
 function checkQuizAnswer(selected, correct) {
     clearInterval(quizTimerId);
     if (selected === correct) {
-        score += 100; // Bonusas už teisingą atsakymą
+        score += 100; 
         updateHUD();
-        closeQuiz();
     } else {
         loseLife();
-        closeQuiz();
     }
+    closeQuiz();
     currentQIndex++;
 }
 
@@ -226,9 +237,12 @@ function loseLife() {
     if (lives <= 0) {
         endGame(false);
     } else {
-        // Atstatome žaidėją į pradžią
-        player.x = 9; player.y = 10; player.dx = 0; player.dy = 0;
-        // Trumpam sustabdome, kad neprarastų visų gyvybių iškart
+        // Atstatome į pradžią
+        player.x = 9; 
+        player.y = 10; 
+        player.dx = 0; 
+        player.dy = 0;
+        // Trumpam sustabdome
         isPaused = true;
         setTimeout(() => { isPaused = false; }, 1000);
     }
