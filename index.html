@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="lt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MVP Retro: Reakcija ir Žinios</title>
+    <link rel="stylesheet" href="style.css">
+    <!-- Retro Pixel Šriftas -->
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- CRT ekrano efektas -->
+    <div class="scanlines"></div>
+
+    <div id="game-container">
+        <!-- Pradžios ekranas -->
+        <div id="start-screen" class="screen active">
+            <h1 class="neon-text">MVP RETRO</h1>
+            <p>Spausk ant judančios galvos kuo greičiau, kad gautum daugiau laiko viktorinai!</p>
+            <button onclick="startReactionGame()">PRADĖTI ŽAIDIMĄ</button>
+        </div>
+
+        <!-- Reakcijos žaidimo ekranas -->
+        <div id="reaction-screen" class="screen">
+            <h2 id="reaction-timer" class="neon-text">Laikas: 0.00s</h2>
+            <img id="moving-target" src="head.png" alt="Taikinys" onclick="hitTarget()">
+        </div>
+
+        <!-- Viktorinos ekranas -->
+        <div id="quiz-screen" class="screen">
+            <div id="quiz-header">
+                <h2 id="quiz-timer-display" class="neon-text-pink">Likęs laikas: 15s</h2>
+            </div>
+            <h3 id="question-text">Klausimas...</h3>
+            <div id="options-container"></div>
+        </div>
+
+        <!-- Final Boss Ekranas -->
+        <div id="boss-screen" class="screen">
+            <h1 class="neon-text-pink glitch" data-text="FINAL BOSS">FINAL BOSS</h1>
+            <img src="boss.png" alt="Boss" class="boss-image floating">
+            <p>Atsakyk teisingai per 5 sekundes ir išgelbėk savo pergalę!</p>
+            <h2 id="boss-timer" class="neon-text">5</h2>
+            <div id="boss-options" class="options-grid"></div>
+        </div>
+
+        <!-- Pralaimėjimo / Pranešėjo ekranas -->
+        <div id="announcer-screen" class="screen">
+            <img id="announcer-img" src="" alt="Pranešėjas">
+            <h1 id="announcer-text" class="neon-text-pink"></h1>
+            <button id="announcer-btn" onclick="location.reload()">BANDYTI IŠ NAUJO</button>
+        </div>
+
+        <!-- Pergalės Ekranas -->
+        <div id="victory-screen" class="screen">
+            <img src="victory.png" alt="Pergalė" class="victory-image glitch-effect">
+            <h1 class="neon-text">ABSOLIUTI PERGALĖ!</h1>
+            <audio id="victory-audio" src="victory.mp3"></audio>
+        </div>
+    </div>
+
+    <script src="questions.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
