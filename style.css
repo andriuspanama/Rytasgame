@@ -1,189 +1,46 @@
-* {
-    box-sizing: border-box;
-    margin: 0;
-    padding: 0;
-    font-family: 'Press Start 2P', cursive; /* Pixel šriftas */
-}
+* { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Press Start 2P', cursive; }
+body, html { height: 100%; overflow: hidden; background-color: #0d0221; color: #fff; }
 
-body, html {
-    height: 100%;
-    overflow: hidden;
-    background-color: #0d0221; /* Tamsus retro fonas */
-    color: #fff;
-}
-
-/* CRT Scanlines efektas */
 .scanlines {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100vh;
-    background: linear-gradient(to bottom, rgba(255,255,255,0), rgba(255,255,255,0) 50%, rgba(0,0,0,0.2) 50%, rgba(0,0,0,0.2));
-    background-size: 100% 4px;
-    pointer-events: none;
-    z-index: 999;
+    position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+    background: linear-gradient(to bottom, rgba(255,255,255,0), rgba(255,255,255,0) 50%, rgba(0,0,0,0.3) 50%, rgba(0,0,0,0.3));
+    background-size: 100% 4px; pointer-events: none; z-index: 999;
 }
 
 #game-container {
-    width: 100vw;
-    height: 100vh;
-    background-image: url('background.jpg');
-    background-size: cover;
-    background-position: center;
-    position: relative;
-    /* Retro wave filtras ant nuotraukos */
-    filter: contrast(1.2) saturate(1.5) hue-rotate(15deg); 
+    width: 100vw; height: 100vh; background-color: #000;
+    display: flex; justify-content: center; align-items: center; position: relative;
 }
 
-.screen {
-    display: none;
-    width: 100%;
-    height: 100%;
-    position: absolute;
-    top: 0;
-    left: 0;
-    justify-content: center;
-    align-items: center;
-    flex-direction: column;
-    background-color: rgba(13, 2, 33, 0.85); /* Tamsus permatomas fonas */
-    text-align: center;
-    padding: 20px;
-}
+.screen { display: none; width: 100%; height: 100%; flex-direction: column; justify-content: center; align-items: center; }
+.screen.active { display: flex; }
 
-.screen.active {
-    display: flex;
-}
+/* Canvas ir HUD */
+#play-screen { position: relative; }
+#gameCanvas { border: 4px solid #0ff; box-shadow: 0 0 20px #0ff; background-color: #000; }
+#hud { position: absolute; top: 10px; width: 100%; display: flex; justify-content: space-around; font-size: 1rem; z-index: 10; }
 
-/* Neoniniai tekstai */
-.neon-text {
-    color: #0ff;
-    text-shadow: 0 0 5px #0ff, 0 0 10px #0ff, 0 0 20px #0ff;
-    margin-bottom: 20px;
-}
+/* Tekstai ir Mygtukai */
+.neon-text { color: #0ff; text-shadow: 0 0 10px #0ff; margin-bottom: 10px; }
+.neon-text-pink { color: #f0f; text-shadow: 0 0 10px #f0f; margin-bottom: 10px; }
+button { padding: 15px; font-size: 1rem; background: #000; color: #f0f; border: 2px solid #f0f; cursor: pointer; margin-top: 20px; }
+button:hover { background: #f0f; color: #fff; }
 
-.neon-text-pink {
-    color: #f0f;
-    text-shadow: 0 0 5px #f0f, 0 0 10px #f0f, 0 0 20px #f0f;
-    margin-bottom: 20px;
+/* Viktorinos Perviršis */
+.overlay {
+    display: none; position: absolute; top: 0; left: 0; width: 100vw; height: 100vh;
+    background: rgba(0,0,0,0.85); z-index: 100; justify-content: center; align-items: center;
 }
+.overlay.active { display: flex; }
+.quiz-box { width: 90%; max-width: 600px; text-align: center; padding: 20px; border: 4px solid #0ff; background: #0d0221; }
+#question-text { font-size: 1rem; margin-bottom: 20px; line-height: 1.5; }
+#options-container { display: flex; flex-direction: column; gap: 10px; }
+.option-btn { padding: 15px; font-size: 0.9rem; background: #000; color: #0ff; border: 2px solid #0ff; cursor: pointer; }
+.option-btn:hover { background: #0ff; color: #000; }
 
-/* Mygtukai */
-button {
-    padding: 15px 30px;
-    font-size: 1rem;
-    font-weight: bold;
-    background-color: #f0f;
-    color: #fff;
-    border: 4px solid #0ff;
-    cursor: pointer;
-    margin-top: 20px;
-    text-transform: uppercase;
-    transition: all 0.2s;
-    box-shadow: 0 0 10px #f0f;
-}
-
-button:hover {
-    background-color: #0ff;
-    border-color: #f0f;
-    box-shadow: 0 0 20px #0ff;
-    transform: scale(1.05);
-}
-
-/* Reakcijos žaidimas */
-#reaction-screen {
-    background-color: transparent; 
-}
-
-#reaction-timer {
-    position: absolute;
-    top: 20px;
-    font-size: 1.5rem;
-}
-
-#moving-target {
-    position: absolute;
-    width: 120px;
-    cursor: crosshair;
-    transition: top 0.3s ease-out, left 0.3s ease-out;
-    user-select: none;
-    -webkit-user-drag: none;
-    filter: drop-shadow(0 0 10px #0ff); /* Neoninis šleifas taikiniui */
-}
-
-/* Viktorina */
-#quiz-screen {
-    justify-content: flex-start;
-    padding-top: 10vh;
-}
-
-#question-text {
-    font-size: 1.2rem;
-    margin-bottom: 30px;
-    max-width: 80%;
-    background: #000;
-    padding: 20px;
-    border: 4px solid #0ff;
-    box-shadow: 0 0 15px #0ff;
-    line-height: 1.5;
-}
-
-#options-container, .options-grid {
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
-    width: 80%;
-    max-width: 600px;
-}
-
-.option-btn {
-    padding: 15px;
-    font-size: 0.9rem;
-    background-color: #000;
-    color: #0ff;
-    border: 2px solid #f0f;
-    cursor: pointer;
-    transition: all 0.2s;
-}
-
-.option-btn:hover {
-    background-color: #f0f;
-    color: #fff;
-    box-shadow: 0 0 15px #f0f;
-}
-
-/* Pranešėjų (Announcer) ir Boss stilius */
-#announcer-screen img, .boss-image, .victory-image {
-    max-height: 40vh;
-    border: 4px solid #0ff;
-    box-shadow: 0 0 20px #0ff;
-    margin-bottom: 20px;
-    image-rendering: pixelated; /* Pixel efektas nuotraukoms */
-}
-
-#announcer-text {
-    font-size: 2rem;
-}
-
-.floating {
-    animation: float 2s ease-in-out infinite;
-}
-
-@keyframes float {
-    0% { transform: translateY(0px); }
-    50% { transform: translateY(-15px); }
-    100% { transform: translateY(0px); }
-}
-
-/* Pergalės glitch efektas */
-.glitch-effect {
-    animation: glitch 0.5s infinite;
-}
-@keyframes glitch {
-    0% { transform: translate(0); }
-    20% { transform: translate(-5px, 5px); filter: hue-rotate(90deg); }
-    40% { transform: translate(-5px, -5px); filter: hue-rotate(180deg); }
-    60% { transform: translate(5px, 5px); filter: hue-rotate(270deg); }
-    80% { transform: translate(5px, -5px); filter: hue-rotate(360deg); }
-    100% { transform: translate(0); }
+/* Mobilios valdymas */
+#mobile-controls { display: none; position: absolute; bottom: 20px; flex-direction: column; align-items: center; gap: 10px; }
+@media (max-width: 768px) {
+    #mobile-controls { display: flex; }
+    #gameCanvas { width: 90vw; height: 90vw; } /* Priverčia būti kvadratu telefone */
 }
